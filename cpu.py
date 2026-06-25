@@ -4,7 +4,7 @@ class CPU:
         self.registers = {
             "R0": 0,
             "R1": 0,
-            "R2": 4
+            "R2": 0
         }
 
         self.program = []
@@ -40,7 +40,7 @@ class CPU:
 
     def JMP(self, instruction):
         _, v = instruction
-        self.pc = v
+        self.pc = v - 1
     
     def CMP(self, instruction):
         _, r0, r1 = instruction
@@ -56,17 +56,22 @@ class CPU:
             instruction = program[self.pc]
             self.ops[instruction[0]](instruction)
             self.pc += 1
-
-program = [
-    ("LOAD", "R0", 0),
-    ("LOAD", "R1", 1),
-    ("ADD", "R0", "R1"),
-    ("PRINT", "R0"),
-    ("CMP", "R0", "R2"),
-    ("JZ", 7),
-    ("JMP", 1),
-    ("HALT",)
-]
+    
+def load_fwd(prog):
+    program = []
+    with open(prog) as fwd:
+        lines = fwd.readlines()
+    for line in lines:
+        parts = line.split()
+        command = []
+        for i in range(0, len(parts)):
+            if parts[i].isdigit() is True:
+                command.append(int(parts[i]))
+                continue
+            command.append(parts[i])
+        program.append(tuple(command))
+    return program
 
 cpu = CPU()
+program = load_fwd("program.fwd")
 cpu.run(program)
