@@ -1,11 +1,10 @@
-from sys import exit
-
 class CPU:
     def __init__(self):
         self.memory = [0] * 16
         self.registers = {
             "R0": 0,
-            "R1": 0
+            "R1": 0,
+            "R2": 4
         }
 
         self.program = []
@@ -17,7 +16,12 @@ class CPU:
             'ADD': self.ADD,
             'PRINT': self.PRINT,
             'HALT': self.HALT,
+            'JMP': self.JMP,
+            'CMP': self.CMP,
+            'JZ': self.JZ
         }
+
+        self.flag_zero = 0
 
     def LOAD(self, instruction):
         _, reg, v = instruction
@@ -32,19 +36,35 @@ class CPU:
         print(self.registers[reg])
 
     def HALT(self, _):
-        exit()
+        self.running = False
+
+    def JMP(self, instruction):
+        _, v = instruction
+        self.pc = v
+    
+    def CMP(self, instruction):
+        _, r0, r1 = instruction
+        self.flag_zero = (self.registers[r0] == self.registers[r1])
+
+    def JZ(self, instruction):
+        _, addr = instruction
+        if self.flag_zero:
+            self.pc = addr - 1
 
     def run(self, program):
-        while self.pc < len(program):
+        while self.pc < len(program) and self.running == True:
             instruction = program[self.pc]
             self.ops[instruction[0]](instruction)
             self.pc += 1
 
 program = [
-    ("LOAD", "R0", 2),
-    ("LOAD", "R1", 3),
+    ("LOAD", "R0", 0),
+    ("LOAD", "R1", 1),
     ("ADD", "R0", "R1"),
     ("PRINT", "R0"),
+    ("CMP", "R0", "R2"),
+    ("JZ", 7),
+    ("JMP", 1),
     ("HALT",)
 ]
 
