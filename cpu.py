@@ -4,7 +4,8 @@ class CPU:
         self.registers = {
             "R0": 0,
             "R1": 0,
-            "R2": 0
+            "R2": 0,
+            "R3": 0
         }
 
         self.program = []
@@ -18,7 +19,9 @@ class CPU:
             'HALT': self.HALT,
             'JMP': self.JMP,
             'CMP': self.CMP,
-            'JZ': self.JZ
+            'JZ': self.JZ,
+            'LOADM': self.LOADM,
+            'STORE': self.STORE,
         }
 
         self.flag_zero = 0
@@ -50,6 +53,14 @@ class CPU:
         _, addr = instruction
         if self.flag_zero:
             self.pc = addr - 1
+
+    def LOADM(self, instruction):
+        _, reg, mem = instruction
+        self.registers[reg] = self.memory[mem]
+
+    def STORE(self, instruction):
+        _, mem, val = instruction
+        self.memory[mem] = val
 
     def run(self, program):
         while self.pc < len(program) and self.running == True:
