@@ -1,3 +1,5 @@
+from assembler import assemble
+
 class CPU:
     def __init__(self):
         self.memory = [0] * 16
@@ -14,7 +16,7 @@ class CPU:
 
         self.ops = {
             'LOAD': self.LOAD,
-            'ADD': self.ADD,
+            'ADD': self.ADD,    
             'PRINT': self.PRINT,
             'HALT': self.HALT,
             'JMP': self.JMP,
@@ -59,30 +61,15 @@ class CPU:
         self.registers[reg] = self.memory[mem]
 
     def STORE(self, instruction):
-        _, mem, val = instruction
-        self.memory[mem] = val
+        _, mem, reg = instruction
+        self.memory[mem] = self.registers[reg]
 
     def run(self, program):
         while self.pc < len(program) and self.running == True:
             instruction = program[self.pc]
             self.ops[instruction[0]](instruction)
             self.pc += 1
-    
-def load_fwd(prog):
-    program = []
-    with open(prog) as fwd:
-        lines = fwd.readlines()
-    for line in lines:
-        parts = line.split()
-        command = []
-        for i in range(0, len(parts)):
-            if parts[i].isdigit() is True:
-                command.append(int(parts[i]))
-                continue
-            command.append(parts[i])
-        program.append(tuple(command))
-    return program
 
 cpu = CPU()
-program = load_fwd("program.fwd")
+program = assemble("program.fwd")
 cpu.run(program)
